@@ -1,0 +1,9 @@
+/.DS_Store
+/config.json
+/discord
+/main.js
+/node_modules
+/package-lock.json
+/package.json
+/status.py
+/token_tg.json
