@@ -19,14 +19,17 @@ delay_for_check = 2
 
 text_for_status = " На сервере сейчас {online}/{max} игроков, заходи!"
 
+intents = discord.Intents.default()
+intents.members = True
+
 with open("config.json", 'r', encoding='utf-8') as cfg:
     json_data=json.load(cfg)
-    print(json_data)
+    # print(json_data)
     token = json_data['token']
     to_connect = (json_data['ip'],json_data['port'])
     delay = json_data['delay']
     delay_for_check = json_data['delay_for_check']
-    print(to_connect)
+    # print(to_connect)
 
 
 
@@ -60,7 +63,7 @@ def get_online_players(ip, port):
     # print(data)
     
     return json.loads(data)
-print(get_online_players(to_connect[0],to_connect[1]))
+# print(get_online_players(to_connect[0],to_connect[1]))
 
 
 def update_status():
@@ -75,7 +78,7 @@ def update_status():
             params = {'text': text, 'access_token': token, 'group_id': group_id, 'v': '5.122'}
             # response = requests.post('[preview]https://api.vk.com/method/status.set', [/preview]data=params)
             response = params
-            print(response, "----------------------------")
+            # print(response, "----------------------------")
             time.sleep(delay)
         else:
             return(online_players['players']['online'])
@@ -88,19 +91,20 @@ status =str(update_status())
     #проверить статус
 class MyClient(discord.Client):
     def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
+        super().__init__(*args,intents=intents, **kwargs)
 
         # an attribute we can access from our task
         self.counter = 0
 
         # start the task to run in the background
-        self.my_background_task.start()
+       
 
     async def on_ready(self):
         print('Logged in as')
         print(self.user.name)
         print(self.user.id)
         print('------')
+        self.my_background_task.start()
 
     async def on_message(self, message):
         # we do not want the bot to reply to itself
@@ -112,7 +116,7 @@ class MyClient(discord.Client):
 
     @tasks.loop(seconds=1) # task runs every 60 seconds
     async def my_background_task(self):
-        
+        return 1
         await client.change_presence(
             status= discord.Status.online, 
             activity = discord.Game(
@@ -131,6 +135,6 @@ class MyClient(discord.Client):
     
 if __name__ == "__main__":
     print(text_for_status)
-client = MyClient()
-client.run(token)
+    client = MyClient()
+    client.run(token)
 
