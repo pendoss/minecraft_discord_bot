@@ -60,32 +60,38 @@ def get_online_players(ip, port):
     while len(data) != length:
         data += sock.recv(length - len(data))
     sock.close()
-    # print(data)
+
+    # with open("result.json", "w", encoding='utf-8') as json_data:
+    #     json.dump(json.loads(data), json_data, indent=4)
     
-    return json.loads(data)
+    data = json.loads(data)
+    if int(data["players"]["online"]) == 0:
+        return "На сервере никто не чилит 😢"
+    return f"На сервере чилит: {' '.join([player['name'] for player in data['players']['sample']])}"
+    # return json.loads(data)
 # print(get_online_players(to_connect[0],to_connect[1]))
 
 
-def update_status():
-    old_online_players = 0
-    while True:
-        online_players = get_online_players(*to_connect)
-        if old_online_players != online_players['players']['online']:
-            text = text_for_status.format(
-                online=online_players['players']['online'],
-                max=online_players['players']['max']
-            )
-            params = {'text': text, 'access_token': token, 'group_id': group_id, 'v': '5.122'}
-            # response = requests.post('[preview]https://api.vk.com/method/status.set', [/preview]data=params)
-            response = params
-            # print(response, "----------------------------")
-            time.sleep(delay)
-        else:
-            return(online_players['players']['online'])
-            time.sleep(delay_for_check)
+# def update_status():
+#     old_online_players = 0
+#     while True:
+#         online_players = get_online_players(*to_connect)
+#         if old_online_players != online_players['players']['online']:
+#             text = text_for_status.format(
+#                 online=online_players['players']['online'],
+#                 max=online_players['players']['max']
+#             )
+#             params = {'text': text, 'access_token': token, 'group_id': group_id, 'v': '5.122'}
+#             # response = requests.post('[preview]https://api.vk.com/method/status.set', [/preview]data=params)
+#             response = params
+#             # print(response, "----------------------------")
+#             time.sleep(delay)
+#         else:
+#             return(online_players['players']['online'])
+#             time.sleep(delay_for_check)
            
-        old_online_players = online_players['players']['online']
-status =str(update_status())
+#         old_online_players = online_players['players']['online']
+# status =str(update_status())
 
 # def get_status():
     #проверить статус
@@ -120,11 +126,11 @@ class MyClient(discord.Client):
         await client.change_presence(
             status= discord.Status.online, 
             activity = discord.Game(
-            f"На сервере чилит: {' '.join([player['name'] for player in get_online_players(to_connect[0],to_connect[1])['players']['sample']])}"
+                get_online_players(to_connect[0],to_connect[1])
             )
-            )
-        channel = self.get_channel(1234567) # channel ID goes here
-        self.counter += 1
+        )
+        # channel = self.get_channel(1234567) # channel ID goes here
+        # self.counter += 1
         # await channel.send(self.counter)
 
 
