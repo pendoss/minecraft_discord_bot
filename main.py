@@ -116,7 +116,7 @@ class MyClient(discord.Client):
 
     @tasks.loop(seconds=1) # task runs every 60 seconds
     async def my_background_task(self):
-        return 1
+        
         await client.change_presence(
             status= discord.Status.online, 
             activity = discord.Game(
