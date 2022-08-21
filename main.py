@@ -94,6 +94,7 @@ class MyClient(discord.Client):
             activity = discord.Game(
                 name=get_online_players(to_connect[0],to_connect[1]),
             )
+        )
             # activity = discord.Activity(
             #     #name="слежу за сервером",
             #     application_id = 0,
@@ -105,7 +106,7 @@ class MyClient(discord.Client):
             #     assets={},
             #     party={},
             # )
-        )
+        #)
         # channel = self.get_channel(1234567) # channel ID goes here
         # self.counter += 1
         # await channel.send(self.counter)
