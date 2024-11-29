@@ -1,13 +1,9 @@
-from random import sample
+from sqlite3 import Timestamp
 from discord.ext import tasks
-from calendar import c
 import discord
-import requests
 import socket
 import struct
 import json
-import time
-import asyncio
 
 
 to_connect = ()
@@ -60,49 +56,16 @@ def get_online_players(ip, port):
     while len(data) != length:
         data += sock.recv(length - len(data))
     sock.close()
-
-    # with open("result.json", "w", encoding='utf-8') as json_data:
-    #     json.dump(json.loads(data), json_data, indent=4)
     
     data = json.loads(data)
     if int(data["players"]["online"]) == 0:
         return "На сервере никто не чилит 😢"
     return f"На сервере чилит: {' '.join([player['name'] for player in data['players']['sample']])}"
-    # return json.loads(data)
-# print(get_online_players(to_connect[0],to_connect[1]))
 
 
-# def update_status():
-#     old_online_players = 0
-#     while True:
-#         online_players = get_online_players(*to_connect)
-#         if old_online_players != online_players['players']['online']:
-#             text = text_for_status.format(
-#                 online=online_players['players']['online'],
-#                 max=online_players['players']['max']
-#             )
-#             params = {'text': text, 'access_token': token, 'group_id': group_id, 'v': '5.122'}
-#             # response = requests.post('[preview]https://api.vk.com/method/status.set', [/preview]data=params)
-#             response = params
-#             # print(response, "----------------------------")
-#             time.sleep(delay)
-#         else:
-#             return(online_players['players']['online'])
-#             time.sleep(delay_for_check)
-           
-#         old_online_players = online_players['players']['online']
-# status =str(update_status())
-
-# def get_status():
-    #проверить статус
 class MyClient(discord.Client):
     def __init__(self, *args, **kwargs):
         super().__init__(*args,intents=intents, **kwargs)
-
-        # an attribute we can access from our task
-        self.counter = 0
-
-        # start the task to run in the background
        
 
     async def on_ready(self):
@@ -110,6 +73,9 @@ class MyClient(discord.Client):
         print(self.user.name)
         print(self.user.id)
         print('------')
+        await client.change_presence(
+            status= discord.Status.online
+        )
         self.my_background_task.start()
 
     async def on_message(self, message):
@@ -121,14 +87,26 @@ class MyClient(discord.Client):
            await message.reply(status[1])
 
     @tasks.loop(seconds=1) # task runs every 60 seconds
-    async def my_background_task(self):
-        
+    async def my_background_task(self): 
+        # TODO: проверка надо ли менять состояние
+
         await client.change_presence(
-            status= discord.Status.online, 
             activity = discord.Game(
-                get_online_players(to_connect[0],to_connect[1])
+                name=get_online_players(to_connect[0],to_connect[1]),
             )
         )
+            # activity = discord.Activity(
+            #     #name="слежу за сервером",
+            #     application_id = 0,
+            #     name=f"за сервером\n{get_online_players(to_connect[0],to_connect[1])}",
+            #     details=get_online_players(to_connect[0],to_connect[1]),
+            #     type=discord.ActivityType.watching,
+            #     state="за сервером",
+            #     timestamp={},
+            #     assets={},
+            #     party={},
+            # )
+        #)
         # channel = self.get_channel(1234567) # channel ID goes here
         # self.counter += 1
         # await channel.send(self.counter)
